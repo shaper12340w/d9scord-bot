@@ -38,6 +38,12 @@ const getProperty = async (message)=>{
             administrator: [],
             prefix: "!",
         };
+        setSlashCommands(message.guild.id);
+        globalValue[message.guild.id] ={
+            sendSelectMenu:null,
+            sendEmbed1:null,
+            sendEmbed2:null,
+        }
         const property = serverProperty[message.guild.id];
         property.player.volume = 80;
         if (!property.administrator.includes(message.author.id) && message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {

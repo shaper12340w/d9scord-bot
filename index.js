@@ -27,7 +27,10 @@ const youtube = google.youtube({
 const embed2 = {
     color : 0xdbce39,
     title : "곡을 골라주세요",
-    description : ''
+    description : '',
+    footer: {
+		text: '번호만 입력 또는 원치 않을 경우 "취소"를 써 주세요',
+    }
 }
 
 async function getResult(e){
@@ -219,6 +222,12 @@ client.on('messageCreate', async (message) => {
                     let volume = require("./commands/volume.js");
                     volume.execute(message,content);
                     break;
+                case "leave":
+                case "나가기":
+                case "종료":
+                    let leave =require("./commands/leave.js");
+                    leave.execute(message);
+                    break;
                 default:
                     break;
             }
@@ -242,7 +251,7 @@ client.on('interactionCreate', async interaction => {
                     const isList = (e.split("_")[0] === "list");
                     if(isList){
                         const index = Number(e.split("_")[1]); //0번부터 시작 지금 재생중인 곡 재외
-                        queue[guildId].playlist.shift();//큐에서 재생중인곡 빼기
+                        queue[interaction.guild.id].playlist.shift();//큐에서 재생중인곡 빼기
                         play(interaction.guild.id,index);//한곡 뺏으니 순서는 맞음
                         client.channels.fetch(interaction.channel.id).then(async (channel) => {
                             await channel.messages.delete(globalValue[interaction.guild.id].sendSelectMenu); //promise이므로 아마 작동될거임
