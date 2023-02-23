@@ -15,7 +15,7 @@ const client = new Client({ intents:
     GatewayIntentBits.Guilds
 ] 
 });
-const TOKEN = "ODIxMzc5MjI3NTI1NDQ3NzIy.GXHJZu.sxvrP3sN9bGJFEa5ojFDGIRANEOGxVqhix_Vok";
+const TOKEN = "token";
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);

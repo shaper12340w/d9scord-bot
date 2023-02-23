@@ -173,4 +173,4 @@ if(player !== undefined){
   })
 }
 
-client.login("ODIxMzc5MjI3NTI1NDQ3NzIy.GXHJZu.sxvrP3sN9bGJFEa5ojFDGIRANEOGxVqhix_Vok");
+client.login("token");
