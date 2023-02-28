@@ -1,4 +1,4 @@
-module.exports = {
+    module.exports = {
     async execute(msgData) {
         const { queue } = require('../index');
 
@@ -7,6 +7,6 @@ module.exports = {
             return false;
         }
         msgData.reply('지금 재생중인 음악입니다.');
-        msgData.channel.send({ embeds: [queue[msgData.guild.id].playlist[0].embed] });
+        msgData.channel.send({ embeds: [queue[msgData.guild.id].nowPlaying.embed] });
     },
 }

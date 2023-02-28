@@ -104,6 +104,7 @@ module.exports = {
             const subscription = connection.subscribe(player);
             queue[msgData.guild.id] = {
                 playlist: [],
+                nowPlaying: {},
                 player: player,
                 connection:connection
             };
@@ -114,14 +115,16 @@ module.exports = {
                 
             });
             play(msgData.guild.id,0);
+            queue[msgData.guild.id].nowPlaying = JSON.parse(JSON.stringify(queue[msgData.guild.id].playlist[0]));
+            console.log("executed")
             return true;
         }
 
         queue[msgData.guild.id].playlist.push({
             url: url,
             name: name,
-            embed: embed,
+            embed: JSON.parse(JSON.stringify(embed)),
         });
-
+        console.log(embed)
     }
 }

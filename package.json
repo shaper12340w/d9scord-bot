@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@discordjs/opus": "github:discordjs/opus",
     "@discordjs/voice": "^0.14.0",
     "cheerio": "^1.0.0-rc.12",
     "discord.js": "^14.7.1",
@@ -10,7 +11,9 @@
     "iso8601-duration": "^2.1.1",
     "libsodium-wrappers": "^0.7.11",
     "node": "^19.6.0",
+    "node-opus": "^0.3.3",
     "node.js": "^0.0.1-security",
+    "opusscript": "^0.0.8",
     "play-dl": "^1.9.6",
     "request": "^2.88.2"
   }

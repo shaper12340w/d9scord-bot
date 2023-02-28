@@ -3,27 +3,28 @@ const { createAudioResource } = require('@discordjs/voice');
 const { queue } = require('./index');
 
 
-const play = async (guidId,index) => {
-    const url = queue[guidId].playlist[index].url;
-    const player = queue[guidId].player;
+const play = async (guildId,index) => {
+    const url = queue[guildId].playlist[index].url;
+    const player = queue[guildId].player;
     const { stream } = await playdl.stream(url, {
         discordPlayerCompatibility: true,
         quality: 128
       });
-    queue[guidId].resource = createAudioResource(stream,{
+    queue[guildId].resource = createAudioResource(stream,{
         inlineVolume: true,
     });
-    player.play(queue[guidId].resource);
+    player.play(queue[guildId].resource);
 };
 
 const getNextResource = (guildId) => {
     if (queue[guildId]) {
         queue[guildId].playlist.shift();
         if (queue[guildId].playlist.length == 0) {
+            queue[guildId].connection.destroy();
             delete queue[guildId];
         } else {
+            queue[guildId].nowPlaying = JSON.parse(JSON.stringify(queue[guildId].playlist[0]));
             play(guildId,0);
-            
         }
     }
 };

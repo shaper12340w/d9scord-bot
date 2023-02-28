@@ -1,8 +1,8 @@
 const { SlashCommandBuilder , StringSelectMenuBuilder, ActionRowBuilder } = require("discord.js");
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('button')
-        .setDescription('button'),
+        .setName('listtest')
+        .setDescription('list test!'),
     async execute(interaction) {
         const row = new ActionRowBuilder()
             .addComponents(

@@ -6,6 +6,10 @@ const embed = {
     description : '',
     
 }
+function removeKey(arr, find) {
+    const index = arr.indexOf(find);
+    if (index < 0){ return arr; } else { return [...arr.slice(0, index), ...arr.slice(index + 1)] }
+}
 
 module.exports = {
     async execute(msgData) {
@@ -15,13 +19,16 @@ module.exports = {
             msgData.reply('Queue가 없습니다.');
             return false;
         }
-        embed.title = `${msgData.guild.name}의 재생목록`
-        embed.description = "현재 재생중:"+queue[msgData.guild.id].playlist[0].name+"\n\n"+queue[msgData.guild.id].playlist.slice(1).map((e, i) => {
-            return "`"+(i+1) + "` | " + e.name
-        }).join("\n");
+        const playing = queue[msgData.guild.id].nowPlaying;
         const playlist = queue[msgData.guild.id].playlist;
+        const musiclist = removeKey(playlist.map((e)=>{return e.name}),playing.name);
+        
+        embed.title = `${msgData.guild.name}의 재생목록`
+        embed.description = "현재 재생중:"+playing.name+"\n\n"+musiclist.map((e, i) => {
+            return "`"+(i+1) + "` | " + e
+        }).join("\n");
         msgData.channel.send({embeds:[embed]});
-        if(playlist.length >= 2){
+        if(musiclist.length >= 1){
             const row = new ActionRowBuilder()
             .addComponents(
                 new StringSelectMenuBuilder()
@@ -29,13 +36,16 @@ module.exports = {
                     .setPlaceholder('재생할 곡을 골라주세요')
                     .setMaxValues(1)
                     .addOptions(
-                        new Array((playlist.length)-1).fill(0).map((e,i)=>{
-                            return { label: playlist[i+1].name , value:"list_"+String(i) }
+                        new Array(musiclist.length).fill(0).map((_,i)=>{
+                            return { label: musiclist[i] , value:"list_"+playlist.map((e)=>{return e.name}).indexOf(musiclist[i]) }
                         })
                     )
             );
-            msgData.channel.send({ components: [row] }).then((e)=>{
-                globalValue[msgData.guild.id].sendSelectMenu = e.id
+            msgData.channel.send({ components: [row] }).then((message)=>{
+                //!globalValue[msgData.guild.id].sendSelectMenu 일 경우 찾아서 삭제+타임아웃 삭제도 추가 ㄱㄱ+nextResource가져올때도 제거하게 ㅎㄱ?
+                //했다 새꺄 삭제는 걍 좀 귀찮으니 안하는편이 나을듯
+                globalValue[msgData.guild.id].sendSelectMenu = message.id
+                setTimeout(() => { message.delete().catch(e=>console.error) }, 30000)
             });
         }
         
