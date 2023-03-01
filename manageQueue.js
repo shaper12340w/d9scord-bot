@@ -18,7 +18,12 @@ const play = async (guildId,index) => {
 
 const getNextResource = (guildId) => {
     if (queue[guildId]) {
-        queue[guildId].playlist.shift();
+        if(queue[guildId].playIndex > 0){
+            queue[guildId].playlist.splice(queue[guildId].playIndex,1);
+            queue[guildId].playIndex = 0;
+        } else {
+            queue[guildId].playlist.shift();
+        }
         if (queue[guildId].playlist.length == 0) {
             queue[guildId].connection.destroy();
             delete queue[guildId];

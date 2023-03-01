@@ -1,4 +1,4 @@
-const { StringSelectMenuBuilder, ActionRowBuilder } = require("discord.js");
+const { StringSelectMenuBuilder, ActionRowBuilder,SlashCommandBuilder } = require("discord.js");
 
 const embed = {
     color : 0xdbce39,
@@ -12,11 +12,17 @@ function removeKey(arr, find) {
 }
 
 module.exports = {
+    data: new SlashCommandBuilder()
+		.setName('list')
+		.setDescription('곡 목록'),
     async execute(msgData) {
         const { queue,globalValue } = require('../index');
 
         if (!queue[msgData.guild.id]) {
-            msgData.reply('Queue가 없습니다.');
+            msgData.reply({embeds:[{
+                color:0xdbce39,
+                title:":octagonal_sign: | 재생중인 곡이 없습니다"
+            }]})
             return false;
         }
         const playing = queue[msgData.guild.id].nowPlaying;
@@ -25,7 +31,7 @@ module.exports = {
         
         embed.title = `${msgData.guild.name}의 재생목록`
         embed.description = "현재 재생중:"+playing.name+"\n\n"+musiclist.map((e, i) => {
-            return "`"+(i+1) + "` | " + e
+            return "**`"+(i+1) + "`** | " + e
         }).join("\n");
         msgData.channel.send({embeds:[embed]});
         if(musiclist.length >= 1){
@@ -41,7 +47,7 @@ module.exports = {
                         })
                     )
             );
-            msgData.channel.send({ components: [row] }).then((message)=>{
+            msgData.reply({ components: [row] }).then((message)=>{
                 //!globalValue[msgData.guild.id].sendSelectMenu 일 경우 찾아서 삭제+타임아웃 삭제도 추가 ㄱㄱ+nextResource가져올때도 제거하게 ㅎㄱ?
                 //했다 새꺄 삭제는 걍 좀 귀찮으니 안하는편이 나을듯
                 globalValue[msgData.guild.id].sendSelectMenu = message.id

@@ -1,8 +1,8 @@
 const { joinVoiceChannel, createAudioPlayer, AudioPlayerStatus } = require('@discordjs/voice');
+const { SlashCommandBuilder } = require('discord.js');
 const { parse } = require('iso8601-duration');
 const { isUndefined } = require('util');
 const { google } = require('googleapis');
-const { play, getNextResource } = require('../manageQueue');
 require('dotenv').config();
 
 const youtube = google.youtube({
@@ -46,22 +46,40 @@ const value = {};
 function addComma(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
+
 module.exports = {
-    async execute(msgData,data){
-        const { queue,serverProperty } = require('../index');
-        const client = msgData.author;
-        const user = msgData.author;
+    data: new SlashCommandBuilder()
+        .setName('play')
+        .setDescription('곡을 재생합니다')
+        .addStringOption(option =>
+            option.setName('찾기')
+                .setDescription('찾을 곡 명')
+                .setRequired(true)),
+    async execute(interaction) {
+        const { exec } = require("../index");
+        exec(interaction, interaction.options._hoistedOptions[0].value, true);
+    },
+    async playMusic(msgData, data, option) {
+        const { play, getNextResource } = require('../manageQueue');
+        const { queue, serverProperty } = require('../index');
+        let user;
+        if (option) {
+            user = msgData.user;
+        } else {
+            user = msgData.author;
+        }
         if (!msgData.member.voice.channel) {
             msgData.reply('음성채널에 먼저 참가해주세요!');
             return;
         }
         const id = data;
         console.log(data)
-        const result = await youtube.videos.list({
+        const getResult = await youtube.videos.list({
             part: 'id,snippet,contentDetails,statistics',
             id: id,
         });
-
+        const result = JSON.parse(JSON.stringify(getResult));
+    
         const contentDetails = result.data.items[0].contentDetails;
         const info = result.data.items[0].snippet;
         const duration = parse(contentDetails.duration);
@@ -71,16 +89,16 @@ module.exports = {
         const viewCount = addComma(result.data.items[0].statistics.viewCount);
         const url = `https://www.youtube.com/watch?v=${id}`;
         const name = info.title;
-        
+    
         embed.title = `🎶${info.title}`;
         embed.fields[0].value = videoDuration;
         embed.fields[1].value = `${viewCount}회`;
         embed.fields[2].value = `[링크](${url})`;
-        embed.footer.text = `${msgData.member.displayName} (${client.tag})`
+        embed.footer.text = `${msgData.member.displayName} (${user.tag})`
         embed.footer.icon_url = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.webp`;
         embed.thumbnail.url = `https://i.ytimg.com/vi/${id}/mqdefault.jpg`;
         msgData.channel.send({ embeds: [embed] });
-
+    
         // queue
         if (isUndefined(queue[msgData.guild.id])) {
             const connection = joinVoiceChannel({
@@ -88,7 +106,7 @@ module.exports = {
                 guildId: msgData.guild.id,
                 adapterCreator: msgData.guild.voiceAdapterCreator,
             });
-
+    
             const player = createAudioPlayer();
             player.on('error', error => {
                 console.error(`Error: ${error.message}`);
@@ -98,33 +116,32 @@ module.exports = {
                 getNextResource(msgData.guild.id);
             });
             player.on(AudioPlayerStatus.Playing, () => {
-                queue[msgData.guild.id].resource.volume.setVolume(serverProperty[msgData.guild.id].player.volume/100);
+                queue[msgData.guild.id].resource.volume.setVolume(serverProperty[msgData.guild.id].player.volume / 100);
             });
-            
+    
             const subscription = connection.subscribe(player);
             queue[msgData.guild.id] = {
+                playIndex: 0,
                 playlist: [],
                 nowPlaying: {},
                 player: player,
-                connection:connection
+                connection: connection
             };
             queue[msgData.guild.id].playlist.push({
                 url: url,
-                name : name,
-                embed: embed,
-                
+                name: name,
+                embed: JSON.parse(JSON.stringify(embed)),
+    
             });
-            play(msgData.guild.id,0);
+            play(msgData.guild.id, 0);
             queue[msgData.guild.id].nowPlaying = JSON.parse(JSON.stringify(queue[msgData.guild.id].playlist[0]));
-            console.log("executed")
             return true;
         }
-
+    
         queue[msgData.guild.id].playlist.push({
             url: url,
             name: name,
             embed: JSON.parse(JSON.stringify(embed)),
         });
-        console.log(embed)
     }
 }

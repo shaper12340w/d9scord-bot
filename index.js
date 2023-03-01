@@ -20,6 +20,15 @@ function removeKey(arr, find) {
     if (index < 0){ return arr; } else { return [...arr.slice(0, index), ...arr.slice(index + 1)] }
 }
 
+function getToday(){
+    var date = new Date();
+    var year = date.getFullYear();
+    var month = ("0" + (1 + date.getMonth())).slice(-2);
+    var day = ("0" + date.getDate()).slice(-2);
+
+    return year + "-" + month + "-" + day;
+}
+
 const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
 });
@@ -47,7 +56,7 @@ async function getResult(e) {
     });
 }
 //노래 재생 코드
-async function exec(msg, data) {
+async function exec(msg,data,option) {
     const id = msg.channel.id;
     const result = await getResult(data)
     if (isUndefined(value[id])) value[id] = {};
@@ -57,13 +66,19 @@ async function exec(msg, data) {
     })
     value[id].isTrue = true;
     embed2.description = '' + value[id].description.join('\n') + '';
-    value[id].sendEmbed = msg.channel.send({ embeds: [embed2] }).then((msg) => { setTimeout(() => msg.delete(), 10000) });
+    if(option){
+        await msg.deferReply();
+        value[id].sendEmbed = msg.editReply({ embeds: [embed2] })
+        setTimeout(() => msg.deleteReply(), 10000);             
+    } else {
+        value[id].sendEmbed = msg.reply({ embeds: [embed2] }).then((msg) => { setTimeout(() => msg.delete(), 10000) });
+    }
     value[id].timer = setTimeout(() => {
         msg.channel.send("선택하지 않아 자동으로 1번 항목이 선택되었습니다");
         value[id].isTrue = false;
         const videoId = value[id].result.data.items[0].id.videoId;
         let playing = require("./commands/play.js");
-        playing.execute(msg, videoId);
+        playing.playMusic(msg,videoId,option);
         delete value[id];
     }, 10000);
 }
@@ -97,7 +112,7 @@ setInterval(() => {
 }, (5 * 60 * 1000))
 
 client.commands = new Collection();
-const commandsPath = "./slash"
+const commandsPath = "./commands"
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
@@ -106,7 +121,7 @@ for (const file of commandFiles) {
     client.commands.set(command.data.name, command);
 }
 
-module.exports = { queue, serverProperty, globalValue, client }
+module.exports = { queue, serverProperty, globalValue, exec }
 
 //디코 클라 이벤트 리스너(메세지)
 client.on('messageCreate', async (message) => {
@@ -115,14 +130,14 @@ client.on('messageCreate', async (message) => {
     getProperty(message);
     //어드민일경우 추가
     addAdmin(message);
+
     //로그 부분
     console.log(message.guild.name + "[" + message.channel.name + "] " + message.member.displayName + " : " + message.content);
     console.log(message.guild.id + " " + message.channel.id);
+
     //보낸 이가 봇일때
     if (message.author.bot) return false;
-    //serverProperty 불러오기
-
-
+    //prefix
     const prefix = serverProperty[message.guild.id].prefix;
 
     //play 목록 확인 부분
@@ -134,8 +149,9 @@ client.on('messageCreate', async (message) => {
                 message.delete();
                 const id = value[message.channel.id].result.data.items[getMsg].id.videoId;
                 let playing = require("./commands/play.js");
-                playing.execute(message, id);
+                playing.playMusic(message, id);
                 delete value[message.channel.id];
+                
             } else if (message.content === "취소") {
                 message.channel.send("취소되었습니다");
                 clearTimeout(value[message.channel.id].timer);
@@ -145,7 +161,7 @@ client.on('messageCreate', async (message) => {
     }
     //eval
     if (message.content.startsWith(`${"!"}ev `)) {
-        if (!(message.author.id === "457797236458258433")) return;
+        if (message.author.id !== "457797236458258433"||((message.guild.id === "1047500814584926209")&&(serverProperty[message.guild.id].administrator.includes(message.author.id)))) return;
         msg = message.content.replace(`${"!"}ev `, '');
         try {
             let result = eval(msg);
@@ -194,6 +210,8 @@ client.on('messageCreate', async (message) => {
                 case "stop":
                 case "정지":
                 case "멈춰":
+                case "나가":
+                case "나가기":
                     let stop = require("./commands/stop.js");
                     stop.execute(message);
                     break;
@@ -208,11 +226,11 @@ client.on('messageCreate', async (message) => {
                     let skip = require("./commands/skip.js");
                     skip.execute(message);
                     break;
-                case "queue":
-                case "쿼리":
+                case "playing":
+                case "큐":
                 case "듣는곡":
-                    let queue = require("./commands/queue.js");
-                    queue.execute(message);
+                    let nowplaying = require("./commands/nowplaying.js");
+                    nowplaying.execute(message);
                     break;
                 case "list":
                 case "리스트":
@@ -225,12 +243,6 @@ client.on('messageCreate', async (message) => {
                 case "음량":
                     let volume = require("./commands/volume.js");
                     volume.execute(message, content);
-                    break;
-                case "leave":
-                case "나가기":
-                case "종료":
-                    let leave = require("./commands/leave.js");
-                    leave.execute(message);
                     break;
                 default:
                     break;
@@ -245,6 +257,7 @@ client.on('interactionCreate', async interaction => {
 
     try {
         if (interaction.isChatInputCommand()) {
+            
             if (interaction.commandName === 'ping') {
             }
             if (!command) return;
@@ -260,10 +273,13 @@ client.on('interactionCreate', async interaction => {
                 if (isList) {
                     const index = Number(interaction.values[0].split("_")[1]);
                     play(interaction.guild.id, index);
-                    interaction.reply(queue[interaction.guild.id].playlist[index].name + "을 재생합니다")
+                    client.channels.fetch(interaction.channel.id).then(async (channel) => {
+                        await channel.messages.delete(globalValue[interaction.guild.id].sendSelectMenu);
+                    });
                     interaction.channel.send({ embeds: [queue[interaction.guild.id].playlist[index].embed] }).then();
                     queue[interaction.guild.id].nowPlaying = JSON.parse(JSON.stringify(queue[interaction.guild.id].playlist[index]));
-                    queue[interaction.guild.id].playlist = removeKey(queue[interaction.guild.id].playlist.map((e) => { return JSON.stringify(e) }), JSON.stringify(queue[interaction.guild.id].nowPlaying));
+                    queue[interaction.guild.id].playlist.splice(queue[interaction.guild.id].playIndex,1);
+                    queue[interaction.guild.id].playIndex = index-1;
                 }
             }
 
@@ -276,6 +292,7 @@ client.on('interactionCreate', async interaction => {
 });
 
 client.on('ready', () => {
+    console.log("\n------------------------------------"+getToday()+"------------------------------------")
     console.log(`Logged in as ${client.user.tag}!`);
     const { getFile } = require("./manageProperty");
     getFile.then(() => {

@@ -1,10 +1,24 @@
 const fs = require('fs');
+const { SlashCommandBuilder } = require('discord.js');
+
 module.exports = {
+    data: new SlashCommandBuilder()
+		.setName('volume')
+		.setDescription('재생중인 곡의 볼륨을 정합니다')
+        .addStringOption(option =>
+            option.setName('volume')
+                .setDescription('정할 볼륨(숫자만 적어주세요)')
+                .setRequired(true)),
     async execute(msgData,vol) {
         const { queue,serverProperty } = require('../index');
-
+        if (msgData.options){
+            vol = msgData.options._hoistedOptions[0].value;
+        }
         if (!queue[msgData.guild.id]) {
-            msgData.reply('Queue가 없습니다.');
+            msgData.reply({embeds:[{
+                color:0xe01032,
+                title:":exclamation: | 재생중인 곡이 없습니다"
+            }]})
             return false;
         } else if(isNaN(vol)){
             msgData.reply({embeds:[{

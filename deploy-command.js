@@ -11,7 +11,7 @@ async function setSlashCommands(id) {
     const rest = new REST({ version: '10' }).setToken(token);
 
     const commands = [];
-    const commandsPath = "./slash"
+    const commandsPath = "./commands"
     const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
     for (const file of commandFiles) {
