@@ -1,0 +1,236 @@
+[
+   {
+      "name": "buttontest",
+      "description": "",
+      "details":"",
+      "commands": [],
+      "path": "./commands/test/buttontest.js",
+      "content": false,
+      "excludedFiles": false
+   },
+   {
+      "name": "listtest",
+      "description": "",
+      "details":"",
+      "commands": [],
+      "path": "./commands/test/listtest.js",
+      "content": false,
+      "excludedFiles": false
+   },
+   {
+      "name": "list",
+      "description": "현재 재생중인 음악 리스트를 보여줍니다",
+      "details":"[곡 재생 필요] 사용법:[prefix][commands]\n\n현재 재생중인 음악의 리스트(목록)을 보여줍니다\n또한 메뉴에서 곡을 선택할 시 자동으로 재생됩니다",
+      "commands": [
+         "list",
+         "리스트",
+         "목록"
+      ],
+      "path": "./commands/music/list.js",
+      "content": false,
+      "excludedFiles": false
+   },
+   {
+      "name": "nowplaying",
+      "description": "현재 재생중인 곡을 알려줍니다",
+      "details":"[곡 재생 필요] 사용법:[prefix][commands]\n\n현재 재생중인 곡의 임배드를 보내드립니다.",
+      "commands": [
+         "playing",
+         "큐",
+         "듣는곡"
+      ],
+      "path": "./commands/music/nowplaying.js",
+      "content": false,
+      "excludedFiles": false
+   },
+   {
+      "name": "pause",
+      "description": "현재 재생중인 곡을 일시중지/재생합니다",
+      "details":"[곡 재생 필요] 사용법:[prefix][commands]\n\n현재 곡을 일시중지하거나 재생할 수 있습니다",
+      "commands": [
+         "pause",
+         "일시정지"
+      ],
+      "path": "./commands/music/pause.js",
+      "content": false,
+      "excludedFiles": false
+   },
+   {
+      "name": "play",
+      "description": "새로운 곡을 추가 및 재생합니다",
+      "details":"사용법:[prefix][commands] (링크 또는 찾을 곡 이름)\n\n곡을 찾아서 재생합니다.\n이때 번호를 선택하여 목록에서 특정 곡을 재생 할 수 있습니다\n유튜브 링크를 덧붙여 보내면 그 영상을 재생합니다",
+      "commands": [
+         "play",
+         "재생",
+         "노래",
+         "틀어줘"
+      ],
+      "path": "./commands/music/play.js",
+      "content": false,
+      "excludedFiles": true
+   },
+   {
+      "name": "recommend",
+      "description": "추천 곡을 자동으로 추가합니다",
+      "details":"[곡 재생 필요] 사용법:[prefix][commands]\n\n추천 음악을 자동으로 추가하여 재생합니다.\n*참고*: 1시간 이상 곡은 최적화 문제로 추가되지 않습니다\nㄴ또한 추천 영상은 전체 목록에 남아 추천 기능을 끄고 전체 반복이 설정 되어 있을 경우, 추천 영상도 목록에 복구됩니다",
+      "commands": [
+         "recommend",
+         "추천",
+         "추천곡"
+      ],
+      "path": "./commands/music/recommend.js",
+      "content": false,
+      "excludedFiles": false
+   },
+   {
+      "name": "remove",
+      "description": "현재 목록에서 곡을 제거합니다",
+      "details":"[곡 재생 필요] 사용법:[prefix][commands]\n\n현재 목록에서 제거하고 싶은 곡을 골라 제거합니다",
+      "commands": [
+        "remove",
+        "삭제",
+        "제거"
+      ],
+      "path": "./commands/music/remove.js",
+      "content": false,
+      "excludedFiles": false
+   },
+   {
+      "name": "repeat",
+      "description": "곡을 반복/셔플을 설정합니다",
+      "details":"[곡 재생 필요] 사용법:[prefix][commands]\n\n곡을 반복하거나 셔플을 할 지 정할 수 있습니다.\n**참고**: 추천 기능이 켜져 있을 경우 전체 반복은 작동되지 않을 수 있습니다.",
+      "commands": [
+         "repeat",
+         "반복"
+      ],
+      "path": "./commands/music/repeat.js",
+      "content": false,
+      "excludedFiles": false
+   },
+   {
+      "name": "skip",
+      "description": "현재 재생중인 곡을 스킵합니다",
+      "details":"[곡 재생 필요] 사용법:[prefix][commands]\n\n현재 듣고 있는 곡을 스킵할 수 있습니다\n듣고 있는 곡이 1개 이하일 경우 자동으로 정지됩니다\n추천 기능이 켜져 있을 경우 자동으로 다음 추천 곡이 재생됩니다.",
+      "commands": [
+         "skip",
+         "스킵",
+         "다음곡"
+      ],
+      "path": "./commands/music/skip.js",
+      "content": false,
+      "excludedFiles": false
+   },
+   {
+      "name": "stop",
+      "description": "현재 재생중인 곡을 멈춥니다",
+      "details":"[곡 재생 필요] 사용법:[prefix][commands]\n\n모든 곡을 정지하고 나갑니다.",
+      "commands": [
+         "stop",
+         "정지",
+         "멈춰",
+         "나가",
+         "나가기"
+      ],
+      "path": "./commands/music/stop.js",
+      "content": false,
+      "excludedFiles": false
+   },
+   {
+      "name": "volume",
+      "description": "현재 재생중인 곡의 볼륨을 조절합니다",
+      "details":"[곡 재생 필요] 사용법:[prefix][commands] (숫자)\n\n플레이어의 볼륨을 조절할 수 있습니다. 기본값은 100이며\n소리가 작을 시 소리를 키우거나 줄일 수 있습니다.",
+      "commands": [
+         "volume",
+         "볼륨",
+         "음량"
+      ],
+      "path": "./commands/music/volume.js",
+      "content": true,
+      "excludedFiles": false
+   },
+   {
+      "name": "eval",
+      "description": "",
+      "details":"",
+      "commands": [],
+      "path": "./commands/general/eval.js",
+      "content": false,
+      "excludedFiles": false
+   },
+   {
+      "name": "help",
+      "description": "도움말을 보여줍니다",
+      "details":"",
+      "commands": [
+         "help",
+         "명령어",
+         "도움말"
+      ],
+      "path": "./commands/general/help.js",
+      "content": false,
+      "excludedFiles": false
+   },
+   {
+      "name": "notice",
+      "description": "",
+      "details":"",
+      "commands": [],
+      "path": "./commands/general/notice.js",
+      "content": false,
+      "excludedFiles": false
+   },
+   {
+      "name": "ping",
+      "description": "",
+      "details":"",
+      "commands": [],
+      "path": "./commands/general/ping.js",
+      "content": false,
+      "excludedFiles": false
+   },
+   {
+      "name": "prefix",
+      "description": "접두사를 설정합니다(서버 관리자 전용)",
+      "details":"[서버 관리자 권한 필요] 사용법:[prefix][commands] (\"사용할 문자\")\n\n접두사를 설정할 수 있습니다. 메세지 명령어로 하는 경우 꼭 \"\"문자가 필요합니다",
+      "commands": [
+         "prefix",
+         "접두사"
+      ],
+      "path": "./commands/general/prefix.js",
+      "content": false,
+      "excludedFiles": true
+   },
+   {
+      "name": "report",
+      "description": "제작자에게 문제점을 신고합니다",
+      "details":"사용법:[prefix][commands] (신고할 내용)\n\n제작자에게 해당 내용을 신고 할 수 있습니다.",
+      "commands": [],
+      "path": "./commands/general/report.js",
+      "content": false,
+      "excludedFiles": false
+   },
+   {
+      "name": "settings",
+      "description": "서버에 대한 샾봇을 설정합니다(서버 관리자 전용)",
+      "details":"[서버 관리자 권한 필요] 사용법:[prefix][commands]\n\n서버에 대한 샾봇의 설정을 할 수 있습니다.\n환영 메세지,접두사,샾봇 공지를 공지할 방 등을 설정 할 수 있습니다.",
+      "commands": [
+         "settings",
+         "setting",
+         "설정"
+      ],
+      "path": "./commands/general/settings.js",
+      "content": false,
+      "excludedFiles": false
+   },
+   {
+      "name": "twozerofoureight",
+      "description": "2048게임",
+      "details":"사용법:[prefix][commands]\n\n2048게임을 할 수 있습니다.",
+      "commands": [
+         "2048"
+      ],
+      "path": "./commands/game/twozerofoureight.js",
+      "content": false,
+      "excludedFiles": false
+   }
+]
