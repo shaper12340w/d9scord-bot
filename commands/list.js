@@ -16,8 +16,9 @@ module.exports = {
 		.setName('list')
 		.setDescription('곡 목록'),
     async execute(msgData) {
-        const { queue,globalValue } = require('../index');
-
+        const { queue,globalValue,client } = require('../../main');
+        const { getPlayData } = require("../../manageQueue");
+        const { createSelectMenu } = require('../../manageFunction');
         if (!queue[msgData.guild.id]) {
             msgData.reply({embeds:[{
                 color:0xdbce39,
@@ -25,33 +26,45 @@ module.exports = {
             }]})
             return false;
         }
-        const playing = queue[msgData.guild.id].nowPlaying;
+        const playing = getPlayData("playing",msgData.guild.id);
         const playlist = queue[msgData.guild.id].playlist;
-        const musiclist = removeKey(playlist.map((e)=>{return e.name}),playing.name);
+        const musiclist = getPlayData("ready",msgData.guild.id);
         
         embed.title = `${msgData.guild.name}의 재생목록`
         embed.description = "현재 재생중:"+playing.name+"\n\n"+musiclist.map((e, i) => {
-            return "**`"+(i+1) + "`** | " + e
+            return "**`"+(i+1) + "`** | " + e.name
         }).join("\n");
-        msgData.channel.send({embeds:[embed]});
+        msgData.reply({ embeds:[embed] });
         if(musiclist.length >= 1){
-            const row = new ActionRowBuilder()
-            .addComponents(
-                new StringSelectMenuBuilder()
-                    .setCustomId(msgData.id)
-                    .setPlaceholder('재생할 곡을 골라주세요')
-                    .setMaxValues(1)
-                    .addOptions(
-                        new Array(musiclist.length).fill(0).map((_,i)=>{
-                            return { label: musiclist[i] , value:"list_"+playlist.map((e)=>{return e.name}).indexOf(musiclist[i]) }
-                        })
-                    )
-            );
-            msgData.reply({ components: [row] }).then((message)=>{
-                //!globalValue[msgData.guild.id].sendSelectMenu 일 경우 찾아서 삭제+타임아웃 삭제도 추가 ㄱㄱ+nextResource가져올때도 제거하게 ㅎㄱ?
-                //했다 새꺄 삭제는 걍 좀 귀찮으니 안하는편이 나을듯
-                globalValue[msgData.guild.id].sendSelectMenu = message.id
-                setTimeout(() => { message.delete().catch(e=>console.error) }, 30000)
+
+            const row = createSelectMenu(msgData.id, {
+                name: "재생할 곡을 골라주세요",
+                maxSelect: 1,
+                async execute({ interaction,kill }) {
+                    const { play } = require("../../manageQueue");
+                    if (queue[interaction.guild.id]) {
+                        const isList = (interaction.values[0].split("_")[0] === "list");
+                        if (isList) {
+                            const index = Number(interaction.values[0].split("_")[1]);
+                            queue[interaction.guild.id].playlist.filter(e=>e.status === 1)[index].status = 3;
+                            queue[interaction.guild.id].playlist.filter(e=>e.status === 2)[0].status = 0;
+                            queue[interaction.guild.id].playlist.filter(e=>e.status === 3)[0].status = 2;
+                            play(interaction.guild.id);
+                            client.channels.fetch(interaction.channel.id).then(async (channel) => {
+                                kill();
+                                await channel.messages.delete(globalValue[interaction.guild.id].sendSelectMenu);
+                            });
+                            interaction.channel.send({ embeds: [getPlayData("playing",interaction.guild.id).embed] }).then().catch(console.error);
+                        }
+                    }
+                } 
+            },new Array(musiclist.length).fill(0).map((_, i) => {
+                return { label: musiclist[i].name, value: "list_" + i }
+            }))
+
+            msgData.channel.send({ components: [row] }).then((msg)=>{
+                globalValue[msgData.guild.id].sendSelectMenu = msg.id
+                setTimeout(() => { msg.delete().catch(e=>console.error) }, 30000)
             });
         }
         
