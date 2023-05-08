@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "@discordjs/opus": "^0.9.0",
+    "@discordjs/voice": "^0.16.0",
+    "canvas": "^2.11.2",
+    "discord.js": "^14.9.0",
+    "dotenv": "^16.0.3",
+    "emitter": "^0.0.2",
+    "eventemitter3": "^5.0.0",
+    "ffmpeg-static": "^5.1.0",
+    "googleapis": "^117.0.0",
+    "iso8601-duration": "^2.1.1",
+    "lavacord": "^1.1.9",
+    "libsodium-wrappers": "^0.7.11",
+    "play-dl": "^1.9.6",
+    "readdirp": "^3.6.0",
+    "ytdl-core": "^4.11.3"
+  }
+}
